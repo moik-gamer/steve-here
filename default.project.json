@@ -2,23 +2,14 @@
   "name": "steve here",
   "tree": {
     "$className": "DataModel",
-    "Workspace": {
-      "$path": "src/Workspace"
-    },
     "ReplicatedFirst": {
       "$path": "src/ReplicatedFirst"
     },
     "ReplicatedStorage": {
-      "$path": "src/ReplicatedStorage",
-      "Packages": {
-        "$path": "Packages"
-      }
+      "$path": "src/ReplicatedStorage"
     },
     "ServerScriptService": {
-      "$path": "src/ServerScriptService",
-      "ServerPackages": {
-        "$path": "ServerPackages"
-      }
+      "$path": "src/ServerScriptService"
     },
     "ServerStorage": {
       "$path": "src/ServerStorage"
@@ -36,6 +27,9 @@
       "StarterPlayerScripts": {
         "$path": "src/StarterPlayer/StarterPlayerScripts"
       }
+    },
+    "Workspace": {
+      "$path": "src/Workspace"
     }
   }
 }
