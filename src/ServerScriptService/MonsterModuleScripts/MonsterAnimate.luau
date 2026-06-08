@@ -1,0 +1,62 @@
+local MonsterAnimate = {}
+
+function MonsterAnimate.StartLogic(Monster)
+	local Humanoid = Monster:WaitForChild("Humanoid")
+
+	-- FIX: Look for the animations inside the Monster model in the Workspace instead of 'script'
+	local IdleAnimation = Monster:WaitForChild("IdleAnim")
+	local WalkAnimation = Monster:WaitForChild("WalkAnim")
+
+	-- Track variables
+	local idleTrack = nil
+	local walkTrack = nil
+
+	-- Wait for Animator to prevent deprecated Humanoid:LoadAnimation() warnings
+	local Animator = Humanoid:WaitForChild("Animator")
+
+	-- Load the animations onto the Animator track
+	idleTrack = Animator:LoadAnimation(IdleAnimation)
+	walkTrack = Animator:LoadAnimation(WalkAnimation)
+
+	-- Set Priorities (So walking overlays smoothly onto idling)
+	idleTrack.Priority = Enum.AnimationPriority.Idle
+	walkTrack.Priority = Enum.AnimationPriority.Movement
+
+	-- Start by playing the idle animation
+	idleTrack:Play()
+
+	-- Detect when the monster moves
+	Humanoid.Running:Connect(function(speed)
+		if speed > 0.5 then
+			-- Monster is moving
+			if not walkTrack.IsPlaying then
+				walkTrack:Play(0.2) -- 0.2 second fade-in transition
+			end
+			if idleTrack.IsPlaying then
+				idleTrack:Stop(0.2)
+			end
+
+			-- Dynamic animation speed based on how fast the monster actually walks
+			walkTrack:AdjustSpeed(Humanoid.WalkSpeed / 16) 
+		else
+			-- Monster stopped
+			if walkTrack.IsPlaying then
+				walkTrack:Stop(0.2)
+			end
+			if not idleTrack.IsPlaying then
+				idleTrack:Play(0.2)
+			end
+		end
+	end)
+
+	-- Handle sudden death
+	Humanoid.Died:Connect(function()
+		idleTrack:Stop()
+		walkTrack:Stop()
+		-- FIX: Removed script.Enabled = false because ModuleScripts cannot be disabled this way.
+		-- Stopping the tracks is enough!
+	end)
+
+end
+
+return MonsterAnimate
