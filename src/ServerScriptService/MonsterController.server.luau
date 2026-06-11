@@ -2,8 +2,11 @@ local CollectionService = game:GetService("CollectionService")
 
 -- 1. Get your MonsterScript module
 -- (This assumes MonsterController and MonsterModules are next to each other in ServerScriptService)
-local MonsterScript = require(script.Parent.MonsterModules.MonsterScript)
-local MonsterAnimate = require(script.Parent.MonsterModules.MonsterAnimate)
+local ServerScriptService = game:GetService("ServerScriptService")
+
+-- 🛠️ FIXED: Explicitly path from ServerScriptService down to your files
+local MonsterScript = require(ServerScriptService.MonsterModuleScripts.MonsterScript)
+local MonsterAnimate = require(ServerScriptService.MonsterModuleScripts.MonsterAnimate)
 
 -- 2. Define the exact tag you used in the Studio Tag Editor
 local MONSTER_TAG = "EnemyMonster"
@@ -17,18 +20,18 @@ local function onMonsterAdded(monster)
 	MonsterAnimate.StartLogic(monster)
 end
 
--- 4. Start logic for all monsters already in the Workspace when the game begins
-for _, monster in ipairs(CollectionService:GetTagged(MONSTER_TAG)) do
-	-- Using task.spawn ensures that if one monster has an error, 
-	-- it doesn't break the rest of the monsters.
-	task.spawn(function()
-		onMonsterAdded(monster)
-	 end)
-end
+-- 🛠️ DIAGNOSTIC FORCE-LOAD
+-- This completely bypasses CollectionService to see if the files are syncing
+task.spawn(function()
+	print("MonsterController diagnostic starting...")
+	task.wait(2) -- Give the game world two seconds to load everything
 
--- 5. Automatically start logic for any NEW monsters that spawn later
-CollectionService:GetInstanceAddedSignal(MONSTER_TAG):Connect(function(monster)
-	task.spawn(function()
-		onMonsterAdded(monster)
-	end)
+	local physicalMonster = Workspace:FindFirstChild("EnemyMonster")
+
+	if physicalMonster then
+		print("FOUND ENEMYMONSTER IN WORKSPACE! Activating logic...")
+		onMonsterAdded(physicalMonster)
+	else
+		warn("CRITICAL: The script looked inside Workspace but could not find any model named exactly 'EnemyMonster'!")
+	end
 end)
