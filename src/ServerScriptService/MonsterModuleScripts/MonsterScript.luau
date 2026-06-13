@@ -1,16 +1,18 @@
 local MonsterScript = {}
-function MonsterScript.StartLogic(Monster)
-	--local rootPart = Monster:FindFirstChild("HumanoidRootPart")
-	--local humanoid = Monster:FindFirstChild("Humanoid")
-	
 
+-- 🛠️ STEP 1: IMPORT THE ANIMATION SYSTEM AT THE VERY TOP
+local MonsterAnimate = require(game:GetService("ServerScriptService").MonsterModuleScripts.MonsterAnimate)
+
+function MonsterScript.StartLogic(Monster)
 	local PathfindingService = game:GetService("PathfindingService")
 	local Players = game:GetService("Players")
 	local Workspace = game:GetService("Workspace")
 
-	--local Monster = script.Parent
 	local humanoid = Monster:WaitForChild("Humanoid")
 	local rootPart = Monster:WaitForChild("HumanoidRootPart")
+
+	-- 🛠️ STEP 2: TRIGGER THE ANIMATIONS RIGHT HERE AS SOON AS THE RIG LOADS
+	MonsterAnimate.StartLogic(Monster)
 
 	local JumpscareGui = Monster:WaitForChild("JumpscareGui")
 	local ScreamSound = Monster:WaitForChild("ScreamSound")
@@ -168,4 +170,5 @@ function MonsterScript.StartLogic(Monster)
 		end
 	end
 end
+
 return MonsterScript

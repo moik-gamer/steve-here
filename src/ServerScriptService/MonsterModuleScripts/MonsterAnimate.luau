@@ -1,9 +1,17 @@
 local MonsterAnimate = {}
 
 function MonsterAnimate.StartLogic(Monster)
+	-- 🛠️ DIAGNOSTIC PRINT 1: Proves the script successfully started running on this monster
+	print("MonsterAnimate has successfully started logic for: " .. Monster.Name)
+
 	local Humanoid = Monster:WaitForChild("Humanoid")
 
-	-- FIX: Look for the animations inside the Monster model in the Workspace instead of 'script'
+	-- FORCE-AWAKE SYSTEM STATES
+	Humanoid:SetStateEnabled(Enum.HumanoidStateType.FallingDown, false)
+	Humanoid:SetStateEnabled(Enum.HumanoidStateType.Ragdoll, false)
+	Humanoid:ChangeState(Enum.HumanoidStateType.Running)
+
+	-- Look for the animations inside the Monster model in the Workspace
 	local IdleAnimation = Monster:WaitForChild("IdleAnim")
 	local WalkAnimation = Monster:WaitForChild("WalkAnim")
 
@@ -19,14 +27,17 @@ function MonsterAnimate.StartLogic(Monster)
 	walkTrack = Animator:LoadAnimation(WalkAnimation)
 
 	-- Set Priorities (So walking overlays smoothly onto idling)
+	walkTrack.Priority = Enum.AnimationPriority.Action
 	idleTrack.Priority = Enum.AnimationPriority.Idle
-	walkTrack.Priority = Enum.AnimationPriority.Movement
 
 	-- Start by playing the idle animation
 	idleTrack:Play()
 
 	-- Detect when the monster moves
 	Humanoid.Running:Connect(function(speed)
+		-- 🛠️ DIAGNOSTIC PRINT 2: Shows us exactly what speed the Humanoid thinks it is moving at
+		print("ANIMATION STATE SIGNAL: Monster speed variable is currently: " .. tostring(speed))
+
 		if speed > 0.5 then
 			-- Monster is moving
 			if not walkTrack.IsPlaying then
@@ -53,8 +64,6 @@ function MonsterAnimate.StartLogic(Monster)
 	Humanoid.Died:Connect(function()
 		idleTrack:Stop()
 		walkTrack:Stop()
-		-- FIX: Removed script.Enabled = false because ModuleScripts cannot be disabled this way.
-		-- Stopping the tracks is enough!
 	end)
 
 end
